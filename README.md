@@ -4,26 +4,34 @@ emailAuth
 
 check
 -
-* variables:
+### variables:
 
+* login - login or email
 
-login - login or email
+### returns:
 
-* returns "found" or "not found" tag
+"found" or "not found" element
+
+    <response xmlns="https://github.com/sys-team/UOAuth">
+        <found/>
+    </response>
 
 
 confirm
 -
 
-## variables:
+### variables:
+*code - authorization code for new user or access token for registered user
+*password  - empty or new password for registered user
+*current-password - empty or old password for registered user
 
-### code - authorization code for new user or access token for registered user
+### returns:
 
-password  - empty or new password for registered user
+new access token
 
-current-password - empty or old password for registered user
-
-* returns new access token
+    <response xmlns="https://github.com/sys-team/UOAuth">
+        <access_token>8c6070698abac00822b6eb62d4649adc</access_token>
+    </response>
 
 login
 -
@@ -50,7 +58,11 @@ smtp-server - server to send confirmation message from
 subject - subject for donfirmation message
 
 * returns "registered" if success
-* sends email message with confirmation code 
+* sends email message with confirmation code
+
+    <response xmlns="https://github.com/sys-team/UOAuth">
+        <registered/>
+    </response>
 
 roles
 -
