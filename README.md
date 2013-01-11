@@ -100,7 +100,7 @@ xml with roles list and user information
     </response>
 
 token
-_
+-
 
 ### variables:
 
