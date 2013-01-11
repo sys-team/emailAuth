@@ -15,9 +15,9 @@ login - login or email
 confirm
 -
 
-* variables:
+## variables:
 
-code - authorization code for new user or access token for registered user
+### code - authorization code for new user or access token for registered user
 
 password  - empty or new password for registered user
 
@@ -39,8 +39,33 @@ password - password or access token
 register
 -
 
+* variables
+
+login - login
+password - password
+email - email
+callback - callback URL
+smtp-sender - sender for confirmation message
+smtp-server - server to send confirmation message from
+subject - subject for donfirmation message
+
+* returns "registered" if success
+* sends email message with confirmation code 
 
 roles
 -
+
+* variables:
+
+access_token - access token
+
+* returns xml with roles
+
 token
 _
+
+* variables:
+
+access_token - access token
+
+* returns new access token
