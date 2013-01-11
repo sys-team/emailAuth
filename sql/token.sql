@@ -11,8 +11,7 @@ begin
     
     insert into ea.log with auto name
     select @xid as xid,
-           'token' as service,
-           http_body() as httpBody;
+           'token' as service;
 
     set @accountId = ea.checkAccessToken(@code);
     

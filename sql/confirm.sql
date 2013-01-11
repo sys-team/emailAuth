@@ -13,9 +13,7 @@ begin
     
     insert into ea.log with auto name
     select @xid as xid,
-           'confirm' as service,
-           http_body() as httpBody,
-           @code as code;
+           'confirm' as service;
     
     set @userId = coalesce((select id
                              from ea.account

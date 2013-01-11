@@ -20,11 +20,7 @@ begin
     
     insert into ea.log with auto name
     select @xid as xid,
-           'register' as service,
-           http_body() as httpBody,
-           @login as "login",
-           @password as password,
-           @email as email;
+           'register' as service;
            
     -- register or change request
     select id,

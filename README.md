@@ -20,7 +20,7 @@ Checks is login or email already used
 
 confirm
 ------------
-Confirms new user registration or chenge password for registered user
+Confirms new user registration or changes password for registered user
 
 ### HTTP headers:
 

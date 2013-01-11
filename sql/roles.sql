@@ -11,9 +11,7 @@ begin
     
     insert into ea.log with auto name
     select @xid as xid,
-           'roles' as service,
-           http_body() as httpBody,
-           @code as code;
+           'roles' as service;
     
     set @accountId = coalesce((select id
                                  from ea.account

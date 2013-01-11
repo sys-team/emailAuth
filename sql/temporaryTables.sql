@@ -1,11 +1,7 @@
 create global temporary table if not exists ea.log(
     
-    httpBody long varchar,
+    httpBody long varchar default http_body(),
     service varchar(255),
-    "login" varchar(1024),
-    password varchar(1024),
-    email varchar(1024),
-    code varchar(1024),
     
     response xml,
 

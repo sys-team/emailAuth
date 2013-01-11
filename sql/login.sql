@@ -13,10 +13,7 @@ begin
     
     insert into ea.log with auto name
     select @xid as xid,
-           'login' as service,
-           http_body() as httpBody,
-           @login as "login",
-           @password as password;
+           'login' as service;
            
     set @userId = ea.checkAccessToken(@password);
     

@@ -3,18 +3,29 @@ create or replace function ea."check"(
 )
 returns xml
 begin
-    declare @result xml;
+    declare @response xml;
+    declare @xid GUID;
+    
+    set @xid = newid();
+    
+    insert into ea.log with auto name
+    select @xid as xid,
+           'check' as service;
     
     if exists(select *
                 from ea.account
                where (username = @login
                   or email = @login)
                  and confirmed = 1) then
-        set @result = xmlelement('found');
+        set @response = xmlelement('found');
     else
-        set @result = xmlelement('not-found');
-    end if;   
+        set @response = xmlelement('not-found');
+    end if;
     
-    return @result;
+    update ea.log
+       set response = @response
+     where xid = @xid;
+    
+    return @response;
 end
 ;
