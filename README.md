@@ -1,9 +1,10 @@
 emailAuth
-=
-
+============
 
 check
--
+------------
+Checks is login or email already used
+
 ### variables:
 
 * login - login or email
@@ -18,7 +19,12 @@ check
 
 
 confirm
--
+------------
+Confirms new user registration or chenge password for registered user
+
+### HTTP headers:
+
+* Authorization - "Bearer " + authorization code
 
 ### variables:
 
@@ -35,7 +41,8 @@ access token
     </response>
 
 login
--
+------------
+Logs user in by login/password or access token
 
 ###  variables:
 
@@ -52,7 +59,8 @@ new access token if password supplied or access token used as password
     </response>
 
 register
--
+------------
+Registers new user or sends new confirmation code for registered user to change password  
 
 ### variables:
 
@@ -62,7 +70,7 @@ register
 * callback - callback URL
 * smtp-sender - sender for confirmation message
 * smtp-server - server to send confirmation message from
-* subject - subject for donfirmation message
+* subject - subject for confirmation message
 
 ### returns:
 
@@ -76,7 +84,8 @@ sends email message with confirmation code
     </response>
 
 roles
--
+------------
+Returns list of user roles and user account information
 
 ### variables:
 
@@ -100,7 +109,8 @@ xml with roles list and user information
     </response>
 
 token
--
+------------
+Returns new access token with short lifetime
 
 ### variables:
 
