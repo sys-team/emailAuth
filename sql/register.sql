@@ -35,7 +35,7 @@ begin
     -- register
     if @userId is null and @email <> '' then
            
-        if @login not regexp '[[:alnum:].-_]{3,15}' then
+        if @login not regexp '[[:alnum:].\-_]{3,15}' or @login not regexp '[[:ascii:]]+' then
             set @response = xmlelement('error', xmlattributes('InvalidLogin' as "code"),
                            'Login must be at least 3, maximum 15 character in length and contains only alphanumeric, underscore and dash characters');
             
