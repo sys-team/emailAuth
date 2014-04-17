@@ -1,5 +1,5 @@
 create or replace function ea.register(
-    @login long varchar default isnull(http_variable('login'),''),
+    @login long varchar default lower(isnull(http_variable('login'),'')),
     @password long varchar default isnull(http_variable('password'),''),
     @email long varchar default isnull(http_variable('email'),''),
     @callback long varchar default http_variable('callback'),

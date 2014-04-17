@@ -1,5 +1,5 @@
 create or replace function ea."check"(
-    @login long varchar default http_variable('login')
+    @login long varchar default lower(http_variable('login'))
 )
 returns xml
 begin

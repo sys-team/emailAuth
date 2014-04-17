@@ -1,5 +1,5 @@
 create or replace function ea."login"(
-    @login long varchar default http_variable('login'),
+    @login long varchar default lower(http_variable('login')),
     @password long varchar default http_variable('password')
 )
 returns xml
