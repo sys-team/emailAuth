@@ -33,17 +33,24 @@ begin
         and confirmed = 1;
         
     -- register
-    if @userId is null and @email <> '' then
+    if @userId is null and (@email <> '' or @login <> '') then
            
-        if @login not regexp '[[:alnum:].\-_]{3,15}' or @login not regexp '[[:ascii:]]+' then
+        if (@login not regexp '[[:alnum:].\-_]{3,15}'
+        or @login not regexp '[[:ascii:]]+')
+        and @login not regexp '.+@.+\..+' 
+        then
             set @response = xmlelement('error', xmlattributes('InvalidLogin' as "code"),
-                           'Login must be at least 3, maximum 15 character in length and contains only alphanumeric, underscore and dash characters');
+                           'Login must be at least 3, maximum 15 character in length and contains only alphanumeric, underscore and dash characters or use email as login');
             
             update ea.log
                set response = @response
              where xid = @xid;
             
             return @response;
+        end if;
+        
+        if @login regexp '.+@.+\..+' and @email = '' then
+            set @email = @login;
         end if;
     
         if @email not regexp '.+@.+\..+' then
