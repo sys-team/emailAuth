@@ -34,6 +34,7 @@ begin
         
     -- register
     if @userId is null and (@email <> '' or @login <> '') then
+    
            
         if (@login not regexp '[[:alnum:].\-_]{3,15}'
         or @login not regexp '[[:ascii:]]+')
@@ -116,9 +117,14 @@ begin
         
         set @userId = ea.registerUser(@userId, @login, @email, @password, @xid);
         
-        call ea.sendConfirmation(@userId, @callback, @smtpSender, @smtpServer, @subject);
+        if isnull(util.getUserOption('emailAuth.confirmationEmail'), '1') = '1' then
+        
+            call ea.sendConfirmation(@userId, @callback, @smtpSender, @smtpServer, @subject);
+            
+        end if;
     
         set @response = xmlelement('registered');
+        
     else
     
         if @userId is null then
