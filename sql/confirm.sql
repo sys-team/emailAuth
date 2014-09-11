@@ -10,11 +10,11 @@ begin
     declare @xid uniqueidentifier;
 
     set @xid = newid();
-    
+
     insert into ea.log with auto name
     select @xid as xid,
            'confirm' as service;
-    
+
     set @userId = coalesce((select id
                              from ea.account
                            where confirmationCode = @code
@@ -29,7 +29,7 @@ begin
                             (select id
                               from ea.account
                              where authCode = @code
-                               and hash(@oldPassword, 'SHA256') = password 
+                               and hash(@oldPassword, 'SHA256') = password
                                and @password is not null
                                and confirmed = 1));
 
@@ -53,11 +53,11 @@ begin
                    password = isnull(hash(@password,'SHA256'),password),
                    confirmationCode = null
              where id = @userId;
-             
+
             set @response = xmlelement('access_token', ea.newAuthCode(@userId));
         end if;
     end if;
-    
+
     update ea.log
        set response = @response
      where xid = @xid;

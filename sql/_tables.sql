@@ -11,12 +11,12 @@ create table if not exists ea.account (
     confirmed integer null default 0,
     confirmationTs datetime null,
     authCodeTs datetime null,
-    
+
     lastLogin datetime null,
-        
+
     id ID, xid GUID, ts TS, cts CTS,
     unique (xid), primary key (id)
-        
+
 )
 ;
 comment on table ea.account is 'Учетная запись пользователя'
