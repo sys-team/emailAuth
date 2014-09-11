@@ -1,25 +1,29 @@
 create or replace function ea.emailAuth(@url long varchar)
 returns xml
-begin 
+begin
     declare @response xml;
-       
-    case @url
+
+    set @response = case @url
         when 'login' then
-            set @response = ea."login"();
+            ea."login"()
         when 'register' then
-            set @response = ea.register();
+            ea.register()
         when 'confirm' then
-            set @response = ea.confirm();
+            ea.confirm()
         when 'roles' then
-            set @response = ea.roles();
+            ea.roles()
         when 'check' then
-            set @response = ea."check"();
-        when 'token'then
-            set @response = ea.token();
+            ea."check"()
+        when 'token' then
+            ea.token()
+        when 'confirmInvite' then
+            ea.confirmInvite()
+        else
+            'Unknown service request'
     end case;
-        
+
     set @response = xmlelement('response', xmlattributes('https://github.com/sys-team/UOAuth' as "xmlns"), @response);
-        
-    return @response;  
-end
-;
+
+    return @response;
+    
+end;

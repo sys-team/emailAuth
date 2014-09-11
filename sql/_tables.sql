@@ -21,3 +21,19 @@ create table if not exists ea.account (
 ;
 comment on table ea.account is 'Учетная запись пользователя'
 ;
+
+
+create table if not exists ea.invite (
+
+    email varchar(512) not null unique,
+    code varchar(1024) null,
+
+    confirmed BOOL,
+
+    id ID, xid GUID, ts TS, cts CTS,
+    unique (xid), primary key (id)
+
+)
+;
+comment on table ea.account is 'Приглашение стать пользователем'
+;
