@@ -37,3 +37,20 @@ create table if not exists ea.invite (
 ;
 comment on table ea.account is 'Приглашение стать пользователем'
 ;
+
+create table if not exists ea.accountRole (
+
+    account IDREF, 
+
+    not null foreign key (account) references ea.account,
+    role varchar(512) not null,
+
+    unique (account, role),
+
+    id ID, xid GUID, ts TS, cts CTS,
+    unique (xid), primary key (id)
+
+)
+;
+comment on table ea.account is 'Роль пользователя'
+;
