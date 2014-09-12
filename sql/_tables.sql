@@ -28,6 +28,8 @@ create table if not exists ea.invite (
     email varchar(512) not null unique,
     code varchar(1024) null,
 
+    not null foreign key (author) references ea.account,
+
     confirmed BOOL,
 
     id ID, xid GUID, ts TS, cts CTS,

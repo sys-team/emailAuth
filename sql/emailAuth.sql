@@ -18,6 +18,8 @@ begin
             ea.token()
         when 'confirmInvite' then
             ea.confirmInvite()
+        when 'invite' then
+            ea.invite()
         else
             'Unknown service request'
     end case;
@@ -25,5 +27,5 @@ begin
     set @response = xmlelement('response', xmlattributes('https://github.com/sys-team/UOAuth' as "xmlns"), @response);
 
     return @response;
-    
+
 end;
