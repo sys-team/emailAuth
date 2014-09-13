@@ -1,11 +1,16 @@
 create or replace function ea.invite(
     @email text default http_variable('email'),
-    @auth text default util.HTTPVariableOrHeader('authorization')
+    @auth text default util.HTTPVariableOrHeader('authorization'),
+    @callback text default http_variable('callback'),
+    @smtpSender text default http_variable('smtp-sender'),
+    @smtpServer text default http_variable('smtp-server'),
+    @subject text default http_variable('subject')
 ) returns xml
 begin
 
     declare @response xml;
     declare @author IDREF;
+    declare @invite IDREF;
     declare @logXid uniqueidentifier;
 
     set @logXid = newid();
@@ -47,7 +52,17 @@ begin
             0 as confirmed
         ;
 
-        set @response = xmlelement('success', xmlattributes(@@identity as "id"));
+        set @invite = @@identity;
+
+        set @response = xmlelement('success', xmlattributes(@invite as "id"));
+
+        if @smtpServer is not null then call ea.sendInvitation(
+            @invite,
+            @callback,
+            @smtpSender,
+            @smtpServer,
+            @subject
+        ) endif;
 
     end if;
 
