@@ -7,10 +7,24 @@ begin
     declare @url STRING;
     declare @cert STRING;
     
-    set @url = util.getUserOption('emailAuth.url') + '/roles';
-    set @cert = 'cert=' + util.getUserOption('emailAuth.cert');
+    set @result = (select accountData
+                     from eac.code
+                    where code = @code
+                      and ets > now());
+                    
+    if @result is null then                
     
-    set @result = eac.post(@url, @cert, @code);    
+        set @url = util.getUserOption('emailAuth.url') + '/roles';
+        set @cert = 'cert=' + util.getUserOption('emailAuth.cert');
+        
+        set @result = eac.post(@url, @cert, @code);
+        
+        insert into eac.code with auto name
+        select @code as code,
+               @result as accountData,
+               dateadd(mi, isnull(util.getUserOption('eac.tokenLifeTime'), 60), now()) as ets;
+        
+    end if;
     
     return @result;
 
