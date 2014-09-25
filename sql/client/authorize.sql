@@ -19,15 +19,17 @@ begin
         
         set @result = eac.post(@url, @cert, @code);
         
-        insert into eac.code with auto name
-        select @code as code,
+        insert into eac.code on existing update with auto name
+        select (select id
+                  from eac.code
+               where code = @code) as id,
+               @code as code,
                @result as accountData,
                dateadd(mi, isnull(util.getUserOption('eac.tokenLifeTime'), 60), now()) as ets;
         
     end if;
     
     return @result;
-
 
 end
 ;
