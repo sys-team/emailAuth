@@ -3,7 +3,7 @@ create or replace procedure ea.sendConfirmation(
     @callback long varchar default null,
     @smtpSender long varchar default null,
     @smtpServer long varchar default null,
-    @subject long varchar default null
+    @subject long varchar default util.getUserOption('ea.confirmationSubject')
 )
 begin
 
@@ -19,10 +19,23 @@ begin
       into @email, @code
       from ea.account where id = @userId;
       
+    if  util.getUserOption('ea.confirmationMessage') is null then
 
-    set @msg = '<p><span>Code: </span><span>' + @code + '</span></p>'
-             + if @callback is not null then '<p><span>' + @callback + @addChar + 'code=' + @code + '</span></p>' else '' endif;    
-
+        set @msg = xmlconcat(
+            xmlelement('p',
+                xmlelement('span','Code: ' + @code)),
+            if @callback is not null then
+                xmlelement('p',
+                    xmlelement('span', @callback + @addChar + 'code=' + @code))
+            else
+                null
+            endif);
+    
+    else
+    
+        set @msg = replace(replace(util.getUserOption('ea.confirmationMessage'), '@code', @code), '@callback', @callback + @addChar + 'code=' + @code);
+        
+    end if;
 
     set @subject = isnull(@subject, @smtpSender + ' confirmation');
     
