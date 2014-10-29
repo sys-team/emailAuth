@@ -8,22 +8,27 @@ begin
     declare @response xml;
     declare @userId integer;
     declare @xid uniqueidentifier;
+    declare @confimationOffset integer;
+    declare @passwordOffset integer;
 
     set @xid = newid();
 
     insert into ea.log with auto name
     select @xid as xid,
            'confirm' as service;
+           
+    set @confimationOffset = isnull(util.getUserOption('ea.confimationOffset'), 30);
+    set @passwordOffset = isnull(util.getUserOption('ea.passwordOffset'), 5);
 
     set @userId = coalesce((select id
                              from ea.account
                            where confirmationCode = @code
-                             and confirmationTs >= dateadd(minute, -30, now())
+                             and confirmationTs >= dateadd(minute, -@confimationOffset, now())
                              and confirmed = 0),
                            (select id
                               from ea.account
                              where confirmationCode = @code
-                               and confirmationTs >= dateadd(minute, -5, now())
+                               and confirmationTs >= dateadd(minute, -@passwordOffset, now())
                                and @password is not null
                                and confirmed = 1),
                             (select id
@@ -37,11 +42,24 @@ begin
         if not exists (select *
                          from ea.account
                         where confirmationCode = @code
-                          and confirmationTs >= dateadd(minute, -30, now())
+                          and confirmationTs >= dateadd(minute, -@confimationOffset, now())
                            or authCode = @code) then
+                           
             set @response = xmlelement('error',xmlattributes('InvalidCode' as "code"), 'Wrong confirmation code');
+            
+        elseif exists (select id
+                         from ea.account
+                        where confirmationCode = @code
+                          and confirmationTs < dateadd(minute, -@passwordOffset, now())
+                          and @password is not null
+                          and confirmed = 1) then
+                          
+            set @response = xmlelement('error',xmlattributes('InvalidCode' as "code"), 'Wrong confirmation code');
+            
         else
-            set @response = xmlelement('error',xmlattributes('InvalidLogPass' as "code"), 'Invalid old passord');
+          
+            set @response = xmlelement('error',xmlattributes('InvalidLogPass' as "code"), 'Invalid old password');
+            
         end if
     else
         if @password is not null and ea.passwordCheck(@password) = 0 then
