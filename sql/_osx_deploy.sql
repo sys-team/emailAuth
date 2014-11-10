@@ -15,6 +15,8 @@ read /Users/%YourUserNameHere%/Sites/emailAuth/sql/login.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/newAuthCode.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/newCode.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/newConfirmationCode.sql;
+read /Users/%YourUserNameHere%/Sites/emailAuth/sql/newOTPCode.sql;
+read /Users/%YourUserNameHere%/Sites/emailAuth/sql/OTPUri.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/passwordCheck.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/register.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/registerUser.sql;
@@ -25,3 +27,4 @@ read /Users/%YourUserNameHere%/Sites/emailAuth/sql/temporaryTables.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/token.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/usernameCheck.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/uuuid.sql;
+

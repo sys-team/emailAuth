@@ -1,6 +1,7 @@
 create or replace function ea."login"(
-    @login long varchar default lower(http_variable('login')),
-    @password long varchar default http_variable('password')
+    @login STRING default lower(http_variable('login')),
+    @password STRING default http_variable('password'),
+    @OTPCode STRING default http_variable('otp_code')
 )
 returns xml
 begin
@@ -26,7 +27,9 @@ begin
          where (username = @login
             or email = @login)
            and password = hash(@password,'SHA256')
-           and confirmed = 1;
+           and confirmed = 1
+           and (util.googleOTPCodeCheck(OTPSecret, @OTPCode) = 1
+            or OTPEnabled = 0);
            
         set @isAccessToken = 0;
     end if;    

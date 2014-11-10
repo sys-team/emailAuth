@@ -66,13 +66,22 @@ begin
             set @response = xmlelement('error',xmlattributes('InvalidPass' as "code"),
                                               'Password must be at least 6 characters, including an uppercase letter and a special character or number');
         else
+            
             update ea.account
                set confirmed = 1,
                    password = isnull(hash(@password,'SHA256'),password),
-                   confirmationCode = null
+                   confirmationCode = null,
+                   OTPEnabled = if isnull(util.getUserOption ('ea.OTPEnabled'), '0') = '1' then 1 else 0 endif
              where id = @userId;
 
-            set @response = xmlelement('access_token', ea.newAuthCode(@userId));
+            set @response = xmlconcat(
+                                xmlelement('access_token', ea.newAuthCode(@userId)),
+                                if isnull(util.getUserOption ('ea.OTPEnabled'), '0') = '1' then
+                                    xmlelement('otp_uri', ea.OTPUri( ea.newOTPCode(@userId), @userId))
+                                else
+                                    ''
+                                endif
+                            );
         end if;
     end if;
 

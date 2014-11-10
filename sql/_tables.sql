@@ -11,6 +11,9 @@ create table if not exists ea.account (
     confirmed integer null default 0,
     confirmationTs datetime null,
     authCodeTs datetime null,
+    
+    OTPSecret STRING,
+    OTPEnabled integer default 0,
 
     lastLogin datetime null,
 
