@@ -3,6 +3,7 @@ read /Users/%YourUserNameHere%/Sites/emailAuth/sql/accountData.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/accountRoles.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/check.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/checkAccessToken.sql;
+read /Users/%YourUserNameHere%/Sites/emailAuth/sql/checkOTP.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/confirm.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/confirmInvite.sql;
 read /Users/%YourUserNameHere%/Sites/emailAuth/sql/ea.account_pwd_change.sql;

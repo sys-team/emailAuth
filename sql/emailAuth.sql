@@ -1,4 +1,6 @@
-create or replace function ea.emailAuth(@url long varchar)
+create or replace function ea.emailAuth(
+    @url STRING
+)
 returns xml
 begin
 
@@ -23,6 +25,8 @@ begin
                 ea.confirmInvite()
             when 'invite' then
                 ea.invite()
+            when 'checkOTP' then
+                ea.checkOTP()
             else
                 'Unknown service request'
         end;
