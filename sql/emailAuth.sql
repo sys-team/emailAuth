@@ -27,6 +27,8 @@ begin
                 ea.invite()
             when 'checkOTP' then
                 ea.checkOTP()
+            when 'OTPSecret' then
+                ea.OTPSecret()
             else
                 'Unknown service request'
         end;

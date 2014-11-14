@@ -1,7 +1,8 @@
 create or replace function ea.confirm(
-    @code long varchar default isnull(nullif(replace(http_header('Authorization'), 'Bearer ', ''),''), http_variable('code')),
-    @password long varchar default http_variable('password'),
-    @oldPassword long varchar default  isnull(http_variable('current-password'),'')
+    @code STRING default isnull(nullif(replace(http_header('Authorization'), 'Bearer ', ''),''), http_variable('code')),
+    @password STRING default http_variable('password'),
+    @oldPassword STRING default isnull(http_variable('current-password'),''),
+    @OTPCode STRING default isnull(http_variable('otp_code'),'')
 )
 returns xml
 begin
@@ -24,7 +25,9 @@ begin
                              from ea.account
                            where confirmationCode = @code
                              and confirmationTs >= dateadd(minute, -@confimationOffset, now())
-                             and confirmed = 0),
+                             and confirmed = 0
+                             and (util.googleOTPCodeCheck(OTPSecret, @OTPCode) = 1
+                              or OTPEnabled = 0)),
                            (select id
                               from ea.account
                              where confirmationCode = @code
@@ -56,6 +59,10 @@ begin
                           
             set @response = xmlelement('error',xmlattributes('InvalidCode' as "code"), 'Wrong confirmation code');
             
+        elseif @OTPCode <> '' then
+        
+            set @response = xmlelement('error',xmlattributes('InvalidOTP' as "code"), 'Invalid OTP');
+        
         else
           
             set @response = xmlelement('error',xmlattributes('InvalidLogPass' as "code"), 'Invalid old password');
@@ -69,19 +76,12 @@ begin
             
             update ea.account
                set confirmed = 1,
-                   password = isnull(hash(@password,'SHA256'),password),
-                   confirmationCode = null,
-                   OTPEnabled = if isnull(util.getUserOption ('ea.OTPEnabled'), '0') = '1' then 1 else 0 endif
+                   password = isnull(hash(@password,'SHA256'), password),
+                   confirmationCode = null
              where id = @userId;
 
-            set @response = xmlconcat(
-                                xmlelement('access_token', ea.newAuthCode(@userId)),
-                                if isnull(util.getUserOption ('ea.OTPEnabled'), '0') = '1' then
-                                    xmlelement('otp_uri', ea.OTPUri( ea.newOTPCode(@userId), @userId))
-                                else
-                                    ''
-                                endif
-                            );
+            set @response = xmlelement('access_token', ea.newAuthCode(@userId));
+            
         end if;
     end if;
 

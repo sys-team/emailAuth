@@ -1,4 +1,4 @@
-create or replace function ea.newOTPCode(
+create or replace function ea.newOTPSecret(
     @userId integer
 )
 returns STRING

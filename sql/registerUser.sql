@@ -14,7 +14,8 @@ begin
     select @id as id,
            @login as username,
            hash(@password,'SHA256') as password,
-           @email as email;
+           @email as email,
+           if isnull(util.getUserOption('ea.OTPEnabled'), '0') = '1' then 1 else 0 endif as OTPEnabled;
            
     set @result = @@identity;
     

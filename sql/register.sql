@@ -116,6 +116,7 @@ begin
                            
         
         set @userId = ea.registerUser(@userId, @login, @email, @password, @xid);
+        set @code = ea.newConfirmationCode(@userId, 5, @xid);
         
         if isnull(util.getUserOption('emailAuth.confirmationEmail'), '1') = '1' then
         
