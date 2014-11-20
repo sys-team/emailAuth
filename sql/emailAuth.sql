@@ -29,6 +29,8 @@ begin
                 ea.checkOTP()
             when 'OTPSecret' then
                 ea.OTPSecret()
+            when 'console' then
+                ea.console()
             else
                 'Unknown service request'
         end;
