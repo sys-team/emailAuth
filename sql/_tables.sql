@@ -47,7 +47,7 @@ create table if not exists ea.accountRole (
 
     account IDREF, 
 
-    not null foreign key (account) references ea.account,
+    not null foreign key (account) references ea.account on delete cascade,
     role varchar(512) not null,
 
     unique (account, role),

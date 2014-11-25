@@ -1,11 +1,11 @@
 create or replace function ea.roles(
-    @code long varchar default http_variable('access_token')
+    @code STRING default http_variable('access_token')
 )
 returns xml
 begin
     declare @response xml;
     declare @accountId integer;
-    declare @xid uniqueidentifier;
+    declare @xid GUID;
     
     set @xid = newid();
     
@@ -13,14 +13,7 @@ begin
     select @xid as xid,
            'roles' as service;
     
-    set @accountId = coalesce((select id
-                                 from ea.account
-                                where confirmed = 1
-                                  and authCode = @code),
-                              (select account
-                                 from ea.code
-                                where code = @code
-                                  and now() between cts and ets)) ;
+    set @accountId = ea.checkAccessToken(@code);
     
     if @accountId is null then
         set @response = xmlelement('error', xmlattributes('InvalidAccessToken' as "code"),'Not authorized');
