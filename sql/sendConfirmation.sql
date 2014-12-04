@@ -19,7 +19,7 @@ begin
       into @email, @code
       from ea.account where id = @userId;
       
-    if  util.getUserOption('ea.confirmationMessage') is null then
+    if util.getUserOption('ea.confirmationMessage') is null then
 
         set @msg = xmlconcat(
             xmlelement('p',

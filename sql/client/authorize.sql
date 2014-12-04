@@ -7,6 +7,10 @@ begin
     declare @url STRING;
     declare @cert STRING;
     
+    if @code is null then
+        return null;
+    end if;
+
     set @result = (select accountData
                      from eac.code
                     where code = @code
