@@ -5,9 +5,16 @@ create or replace function ea.console(
 )
 returns xml
 begin
+    declare @xid GUID;
     declare @result xml;
     declare @accountId integer;
     declare @cAccountId integer;
+    
+    set @xid = newid();
+    
+    insert into ea.log with auto name
+    select @xid as xid,
+           'console' as service;
     
     set @accountId = coalesce((select id
                                  from ea.account
@@ -52,6 +59,10 @@ begin
     else
         set @result = xmlelement('error', xmlattributes('NotAuthorized' as "code"), 'Not authorized');
     end if;
+    
+    update ea.log
+       set response = @result
+     where xid = @xid;
     
     return @result;
 
