@@ -82,6 +82,10 @@ begin
 
             set @response = xmlelement('access_token', ea.newAuthCode(@userId));
             
+            if isnull(util.getUserOption('ea.postConfirmationSP'), '') <> '' then
+                execute immediate 'call ' + util.getUserOption('ea.postConfirmationSP') + '(' + cast(@userId as varchar(24)) +')';
+            end if;
+            
         end if;
     end if;
 
