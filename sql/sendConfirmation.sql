@@ -39,11 +39,23 @@ begin
 
     set @subject = isnull(@subject, @smtpSender + ' confirmation');
     
-    if @smtpSender is null then
-        call util.email(@email, @subject, @msg);
+    if isnull(util.getUserOption('ea.emailHtml'), '0') = '1' then
+    
+        call util.emailHtml(
+            @bodyHtml = @msg,
+            @subject = @subject,
+            @smtp_server = isnull(util.getUserOption('SMTPServer'), 'localhost'),
+            @smtp_sender = isnull(util.getUserOption('SMTPSender'), 'emailAuth'),
+            @smtp_sender_name = isnull(util.getUserOption('SMTPSenderName'), 'emailAuth'),
+            @recipient = @email
+        );
+    
     else
-        call util.email(@email, @subject, @msg, @smtpSender, @smtpServer);
+        if @smtpSender is null then
+            call util.email(@email, @subject, @msg);
+        else
+            call util.email(@email, @subject, @msg, @smtpSender, @smtpServer);
+        end if;
     end if;
-
 end
 ;
