@@ -36,7 +36,7 @@ begin
     ;
 
     -- register
-    if @userId is null and (@email <> '' or @login <> '') then
+    if @userId is null and (@email <> '' and @login <> '') then
 
 
         if (@login not regexp '[[:alnum:].\-_]{3,15}'
@@ -162,8 +162,8 @@ begin
         if @userId is null then
 
             set @response = xmlelement(
-                'error', xmlattributes('InvalidLogin' as "code"),
-                'Invalid login'
+                'error', xmlattributes('WrongLoginOrEmail' as "code"),
+                'Wrong login'
             );
 
             update ea.log set
