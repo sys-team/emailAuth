@@ -33,7 +33,7 @@ begin
 
         when exists (
             select * from ea.invite
-            where email = @email -- and confirmed = 1
+            where email = @email and confirmed = 1
         ) or exists (
             select * from ea.account
             where email = @email
@@ -44,15 +44,24 @@ begin
     end;
 
     if @response is null then
+    
+        set @invite = (
+            select id from ea.invite
+            where email = @email
+        );
 
         insert into ea.invite on existing update with auto name select
+            @invite as id,
             @email as email,
             @author as author,
             ea.uuuid() as code,
             0 as confirmed
         ;
 
-        set @invite = @@identity;
+        set @invite = (
+            select id from ea.invite
+            where email = @email
+        );
 
         set @response = xmlelement('success', xmlattributes(@invite as "id"));
 
