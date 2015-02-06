@@ -15,144 +15,179 @@ begin
     declare @msg xml;
     declare @confirmationTs datetime;
     declare @code long varchar;
-    
+
     set @xid = newid();
-    
-    insert into ea.log with auto name
-    select @xid as xid,
-           'register' as service;
-           
+
+    insert into ea.log with auto name select
+        @xid as xid,
+        'register' as service
+    ;
+
     -- register or change request
     select id,
            confirmationTs
-       into @userId, @confirmationTs
-       from ea.account
-      where (username = @login
-         or email = @login)
+        into @userId, @confirmationTs
+    from ea.account
+    where (username = @login
+            or email = @login
+        )
         and @email = ''
-        and confirmed = 1;
-        
+        and confirmed = 1
+    ;
+
     -- register
     if @userId is null and (@email <> '' or @login <> '') then
-    
-           
+
+
         if (@login not regexp '[[:alnum:].\-_]{3,15}'
-        or @login not regexp '[[:ascii:]]+')
-        and @login not regexp '.+@.+\..+' 
+            or @login not regexp '[[:ascii:]]+'
+        ) and @login not regexp '.+@.+\..+'
         then
-            set @response = xmlelement('error', xmlattributes('InvalidLogin' as "code"),
-                           'Login must be at least 3, maximum 15 character in length and contains only alphanumeric, underscore and dash characters or use email as login');
-            
-            update ea.log
-               set response = @response
-             where xid = @xid;
-            
+            set @response = xmlelement(
+                'error', xmlattributes('InvalidLogin' as "code"),
+                'Login must be at least 3, maximum 15 character in length'
+                + ' and contain only alphanumeric, underscore'
+                + ' and dash characters or use email as login'
+            );
+
+            update ea.log set
+                response = @response
+            where xid = @xid;
+
             return @response;
         end if;
-        
+
         if @login regexp '.+@.+\..+' and @email = '' then
             set @email = @login;
         end if;
-    
+
         if @email not regexp '.+@.+\..+' then
-            set @response = xmlelement('error', xmlattributes('InvalidEmail' as "code"),
-                                       'Invalid email address');
-            
+
+            set @response = xmlelement(
+                'error', xmlattributes('InvalidEmail' as "code"),
+                'Invalid email address'
+            );
+
+            update ea.log set
+                response = @response
+            where xid = @xid;
+
+            return @response;
+
+        end if;
+
+        -- delete rotten login
+        delete from ea.account
+        where (username = @login
+                or email = @email
+            )
+            and confirmed = 0
+            and confirmationTs < dateadd(minute, -30, now())
+        ;
+
+
+        set @msg = (
+            select xmlconcat(
+                if username = @login then xmlelement(
+                    'error',xmlattributes('LoginInUse' as "code"),
+                    'This name is already in use'
+                ) else null endif,
+                if email = @email then xmlelement(
+                    'error',xmlattributes('EmailInUse' as "code"),
+                    'This email is already in use'
+                ) else null endif,
+                if confirmed = 1 and password <> hash(@password,'SHA256') then xmlelement(
+                    'error',xmlattributes('PassMismatch' as "code"),
+                    'Password mismatch for confirmed user'
+                ) else null endif
+            ) from ea.account
+            where (
+                username = @login
+                or email = @email
+            ) and (
+                confirmed = 1
+                or password <> hash(@password,'SHA256')
+            )
+        );
+
+        if @msg is not null then
+
+            set @response =  @msg;
+
             update ea.log
                set response = @response
              where xid = @xid;
-            
+
             return @response;
         end if;
-            
-        -- delete rotten login
-        delete from ea.account
-         where (username = @login
-            or email = @email)
-           and confirmed = 0
-           and confirmationTs < dateadd(minute, -30, now());
-           
-    
-        set @msg = (select xmlconcat(
-                           if username = @login then xmlelement('error',xmlattributes('LoginInUse' as "code"), 'This name is already in use') else null endif,
-                           if email = @email then xmlelement('error',xmlattributes('EmailInUse' as "code"),'This email is already in use') else null endif,
-                           if confirmed = 1 and password <> hash(@password,'SHA256') then xmlelement('error',xmlattributes('PassMismatch' as "code"),'Password mismatch for confirmed user') else null endif)
-                      from ea.account
-                     where (username = @login
-                        or email = @email)
-                       and (confirmed = 1
-                        or password <> hash(@password,'SHA256')));
-            
-        if @msg is not null then
-                             
-            set @response =  @msg;
-            
-            update ea.log
-               set response = @response
-             where xid = @xid; 
-            
-            return @response;
-        end if;
-    
+
         -- min 6 char length
         -- number or spechial char
         -- lowercase
         -- uppercase
         if ea.passwordCheck(@password) = 0 then
-            set @response = xmlelement('error', xmlattributes('InvalidPass' as "code"),
-                                      'Password must be at least 6 characters, including an uppercase letter and a special character or number');
-            
+            set @response = xmlelement(
+                'error', xmlattributes('InvalidPass' as "code"),
+                'Password must be at least 6 characters,'
+                + ' including an uppercase letter and a special character or number'
+            );
+
             update ea.log
                set response = @response
              where xid = @xid;
-             
+
             return @response;
         end if;
-    
-        set @userId = (select id
-                         from ea.account
-                        where username = @login
-                           or email = @email);
-                           
-        
+
+        set @userId = (
+            select id
+            from ea.account
+            where username = @login
+               or email = @email
+        );
+
         set @userId = ea.registerUser(@userId, @login, @email, @password, @xid);
         set @code = ea.newConfirmationCode(@userId, 5, @xid);
-        
+
         if isnull(util.getUserOption('emailAuth.confirmationEmail'), '1') = '1' then
-        
+
             call ea.sendConfirmation(@userId, @callback, @smtpSender, @smtpServer, @subject);
-            
+
         end if;
-    
+
         set @response = xmlelement('registered');
-        
+
     else
-    
+
         if @userId is null then
-            set @response = xmlelement('error', xmlattributes('InvalidLogin' as "code"),
-                                       'Invalid login');
-            
-            update ea.log
-               set response = @response
-             where xid = @xid;
-            
+
+            set @response = xmlelement(
+                'error', xmlattributes('InvalidLogin' as "code"),
+                'Invalid login'
+            );
+
+            update ea.log set
+                response = @response
+            where xid = @xid;
+
             return @response;
         else
             if datediff(mi, @confirmationTs, now()) > 5 then
-            
+
                 set @code = ea.newConfirmationCode(@userId, 5, @xid);
-    
+
                 call ea.sendConfirmation(@userId, @callback, @smtpSender, @smtpServer, @subject);
              end if;
-             
+
              set @response = xmlelement('accepted');
         end if;
+
     end if;
-    
+
     update ea.log
        set response = @response
      where xid = @xid;
-    
+
     return @response;
-end
-;
+
+end;
