@@ -14,7 +14,9 @@ begin
 
     for sending as msg cursor for
         select
-            invite.email as "@email", invite.code as "@code", author.username as "@author"
+            invite.email as "@email", invite.code as "@code",
+            'Someone' --author.username
+                as "@author"
         from ea.invite
             join ea.account author
             on author.id = invite.author
